@@ -17,6 +17,13 @@ interface GradesTabProps {
 }
 
 export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }: GradesTabProps) => {
+  const subjects = Array.from(new Set(grades.map(g => g.subject)));
+  
+  const gradesBySubject = subjects.reduce((acc, subject) => {
+    acc[subject] = grades.filter(g => g.subject === subject);
+    return acc;
+  }, {} as Record<string, Grade[]>);
+
   return (
     <Card>
       <CardHeader>
@@ -77,37 +84,46 @@ export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[500px]">
-          <div className="space-y-3">
-            {grades.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Icon name="BookOpen" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Пока нет оценок</p>
-              </div>
-            ) : (
-              grades.map((grade, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
-                  <div className="flex-1">
-                    <p className="font-medium text-lg">{grade.subject}</p>
-                    <p className="text-sm text-muted-foreground">{grade.date}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {grade.isNew && (
-                      <Badge variant="destructive" className="text-xs animate-pulse">Новая</Badge>
-                    )}
-                    <Badge 
-                      className={`text-2xl font-bold px-4 py-2 ${
-                        grade.grade === 5 ? 'bg-green-500 hover:bg-green-600' : 
-                        grade.grade === 4 ? 'bg-blue-500 hover:bg-blue-600' : 
-                        grade.grade === 3 ? 'bg-orange-500 hover:bg-orange-600' : 'bg-red-500 hover:bg-red-600'
-                      }`}
-                    >
-                      {grade.grade}
-                    </Badge>
+          {grades.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Icon name="BookOpen" size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Пока нет оценок</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {subjects.map((subject) => (
+                <div key={subject} className="border rounded-lg p-4 bg-card">
+                  <h3 className="font-semibold text-lg mb-4">{subject}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {gradesBySubject[subject].map((grade, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group"
+                      >
+                        <div
+                          className={`w-12 h-12 flex items-center justify-center border-2 rounded font-bold text-xl transition-all hover:scale-110 ${
+                            grade.grade === 5
+                              ? 'bg-green-50 border-green-500 text-green-700'
+                              : grade.grade === 4
+                              ? 'bg-blue-50 border-blue-500 text-blue-700'
+                              : grade.grade === 3
+                              ? 'bg-orange-50 border-orange-500 text-orange-700'
+                              : 'bg-red-50 border-red-500 text-red-700'
+                          } ${grade.isNew ? 'ring-2 ring-destructive ring-offset-2 animate-pulse' : ''}`}
+                        >
+                          {grade.grade}
+                        </div>
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg border z-10">
+                          {grade.date}
+                          {grade.isNew && <span className="ml-2 text-destructive font-medium">Новая</span>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>
