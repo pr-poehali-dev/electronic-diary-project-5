@@ -39,40 +39,17 @@ interface ScheduleLesson {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [notifications, setNotifications] = useState(2);
+  const [notifications, setNotifications] = useState(0);
 
-  const [grades] = useState<Grade[]>([
-    { subject: 'Математика', grade: 5, date: '20.10.2025', isNew: true },
-    { subject: 'Русский язык', grade: 4, date: '20.10.2025' },
-    { subject: 'История', grade: 5, date: '19.10.2025' },
-    { subject: 'Физика', grade: 4, date: '18.10.2025' },
-    { subject: 'Английский язык', grade: 5, date: '18.10.2025' },
-    { subject: 'Химия', grade: 3, date: '17.10.2025', isNew: true },
-  ]);
+  const [grades] = useState<Grade[]>([]);
 
-  const [homeworks, setHomeworks] = useState<Homework[]>([
-    { id: 1, subject: 'Математика', task: 'Решить задачи №154-160', deadline: '23.10.2025', completed: false },
-    { id: 2, subject: 'Литература', task: 'Прочитать главы 5-7', deadline: '24.10.2025', completed: false },
-    { id: 3, subject: 'Физика', task: 'Лабораторная работа №3', deadline: '25.10.2025', completed: false },
-    { id: 4, subject: 'История', task: 'Подготовить доклад', deadline: '26.10.2025', completed: true },
-  ]);
+  const [homeworks, setHomeworks] = useState<Homework[]>([]);
 
-  const [teachers] = useState<Teacher[]>([
-    { name: 'Иванова Мария Петровна', subject: 'Математика', email: 'ivanova@school.ru', phone: '+7 (999) 123-45-67' },
-    { name: 'Петров Сергей Иванович', subject: 'Русский язык', email: 'petrov@school.ru', phone: '+7 (999) 234-56-78' },
-    { name: 'Сидорова Анна Викторовна', subject: 'История', email: 'sidorova@school.ru', phone: '+7 (999) 345-67-89' },
-    { name: 'Козлов Дмитрий Александрович', subject: 'Физика', email: 'kozlov@school.ru', phone: '+7 (999) 456-78-90' },
-  ]);
+  const [teachers] = useState<Teacher[]>([]);
 
-  const [schedule] = useState<ScheduleLesson[]>([
-    { time: '08:30 - 09:15', subject: 'Математика', teacher: 'Иванова М.П.', room: '205' },
-    { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петров С.И.', room: '312' },
-    { time: '10:25 - 11:10', subject: 'История', teacher: 'Сидорова А.В.', room: '408' },
-    { time: '11:30 - 12:15', subject: 'Физика', teacher: 'Козлов Д.А.', room: '215' },
-    { time: '12:25 - 13:10', subject: 'Английский язык', teacher: 'Смирнова О.Н.', room: '301' },
-  ]);
+  const [schedule] = useState<ScheduleLesson[]>([]);
 
-  const averageGrade = (grades.reduce((acc, g) => acc + g.grade, 0) / grades.length).toFixed(1);
+  const averageGrade = grades.length > 0 ? (grades.reduce((acc, g) => acc + g.grade, 0) / grades.length).toFixed(1) : '0.0';
 
   const toggleHomework = (id: number) => {
     setHomeworks(homeworks.map(hw => hw.id === id ? { ...hw, completed: !hw.completed } : hw));
