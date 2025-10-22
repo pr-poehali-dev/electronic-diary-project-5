@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { LoginForm } from '@/components/diary/LoginForm';
@@ -9,6 +9,24 @@ import { HomeworkTab } from '@/components/diary/HomeworkTab';
 import { ScheduleTab } from '@/components/diary/ScheduleTab';
 import { TeachersTab } from '@/components/diary/TeachersTab';
 import { Grade, Homework, Teacher, ScheduleLesson, UserRole } from '@/components/diary/types';
+
+const STORAGE_KEY = 'diary_data';
+
+const initialTeachers: Teacher[] = [
+  { name: 'Иванова М.А.', subject: 'Математика', email: 'ivanova@school.ru', phone: '+7 (999) 123-45-67' },
+  { name: 'Петров С.И.', subject: 'Русский язык', email: 'petrov@school.ru', phone: '+7 (999) 234-56-78' },
+  { name: 'Сидорова Е.В.', subject: 'Английский язык', email: 'sidorova@school.ru', phone: '+7 (999) 345-67-89' },
+  { name: 'Козлов А.П.', subject: 'История', email: 'kozlov@school.ru', phone: '+7 (999) 456-78-90' },
+  { name: 'Морозова Н.Д.', subject: 'Физика', email: 'morozova@school.ru', phone: '+7 (999) 567-89-01' }
+];
+
+const initialSchedule: ScheduleLesson[] = [
+  { time: '08:30 - 09:15', subject: 'Математика', teacher: 'Иванова М.А.', room: '204' },
+  { time: '09:25 - 10:10', subject: 'Русский язык', teacher: 'Петров С.И.', room: '301' },
+  { time: '10:20 - 11:05', subject: 'Английский язык', teacher: 'Сидорова Е.В.', room: '205' },
+  { time: '11:25 - 12:10', subject: 'История', teacher: 'Козлов А.П.', room: '302' },
+  { time: '12:20 - 13:05', subject: 'Физика', teacher: 'Морозова Н.Д.', room: '401' }
+];
 
 const Index = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,8 +40,31 @@ const Index = () => {
 
   const [grades, setGrades] = useState<Grade[]>([]);
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
-  const [teachers] = useState<Teacher[]>([]);
-  const [schedule] = useState<ScheduleLesson[]>([]);
+  const [teachers] = useState<Teacher[]>(initialTeachers);
+  const [schedule] = useState<ScheduleLesson[]>(initialSchedule);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setGrades(data.grades || []);
+        setHomeworks(data.homeworks || []);
+        setNotifications(data.notifications || 0);
+      } catch (e) {
+        console.error('Ошибка загрузки данных:', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const data = {
+      grades,
+      homeworks,
+      notifications
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, [grades, homeworks, notifications]);
 
   const averageGrade = grades.length > 0 ? (grades.reduce((acc, g) => acc + g.grade, 0) / grades.length).toFixed(1) : '0.0';
 

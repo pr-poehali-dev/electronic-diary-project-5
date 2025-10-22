@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,22 @@ export const HomeworkTab = ({
   onToggleHomework, 
   onAddHomework 
 }: HomeworkTabProps) => {
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [task, setTask] = useState('');
+  const [deadline, setDeadline] = useState('');
+
+  const handleAddHomework = () => {
+    if (subject && task && deadline) {
+      const formattedDeadline = new Date(deadline).toLocaleDateString('ru-RU');
+      onAddHomework(subject, task, formattedDeadline);
+      setSubject('');
+      setTask('');
+      setDeadline('');
+      setOpen(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -34,7 +51,7 @@ export const HomeworkTab = ({
               {homeworks.filter(hw => !hw.completed).length} активных
             </Badge>
             {canManageContent && (
-              <Dialog>
+              <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <Icon name="Plus" size={16} className="mr-2" />
@@ -48,30 +65,35 @@ export const HomeworkTab = ({
                   <div className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="hw-subject">Предмет</Label>
-                      <Input id="hw-subject" placeholder="Математика" />
+                      <Input 
+                        id="hw-subject" 
+                        placeholder="Математика"
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="hw-task">Задание</Label>
-                      <Textarea id="hw-task" placeholder="Описание задания" rows={3} />
+                      <Textarea 
+                        id="hw-task" 
+                        placeholder="Описание задания" 
+                        rows={3}
+                        value={task}
+                        onChange={(e) => setTask(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="hw-deadline">Срок выполнения</Label>
-                      <Input id="hw-deadline" type="date" />
+                      <Input 
+                        id="hw-deadline" 
+                        type="date"
+                        value={deadline}
+                        onChange={(e) => setDeadline(e.target.value)}
+                      />
                     </div>
                     <Button 
                       className="w-full"
-                      onClick={() => {
-                        const subject = (document.getElementById('hw-subject') as HTMLInputElement)?.value;
-                        const task = (document.getElementById('hw-task') as HTMLTextAreaElement)?.value;
-                        const deadlineInput = (document.getElementById('hw-deadline') as HTMLInputElement)?.value;
-                        if (subject && task && deadlineInput) {
-                          const deadline = new Date(deadlineInput).toLocaleDateString('ru-RU');
-                          onAddHomework(subject, task, deadline);
-                          (document.getElementById('hw-subject') as HTMLInputElement).value = '';
-                          (document.getElementById('hw-task') as HTMLTextAreaElement).value = '';
-                          (document.getElementById('hw-deadline') as HTMLInputElement).value = '';
-                        }
-                      }}
+                      onClick={handleAddHomework}
                     >
                       Добавить
                     </Button>

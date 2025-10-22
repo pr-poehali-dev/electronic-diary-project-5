@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,25 @@ interface GradesTabProps {
 }
 
 export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }: GradesTabProps) => {
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [gradeValue, setGradeValue] = useState('');
+  
   const subjects = Array.from(new Set(grades.map(g => g.subject)));
   
   const gradesBySubject = subjects.reduce((acc, subject) => {
     acc[subject] = grades.filter(g => g.subject === subject);
     return acc;
   }, {} as Record<string, Grade[]>);
+
+  const handleAddGrade = () => {
+    if (subject && gradeValue) {
+      onAddGrade(subject, parseInt(gradeValue));
+      setSubject('');
+      setGradeValue('');
+      setOpen(false);
+    }
+  };
 
   return (
     <Card>
@@ -32,7 +46,7 @@ export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }
           <div className="flex items-center gap-2">
             <Badge variant="secondary">Средний балл: {averageGrade}</Badge>
             {canManageContent && (
-              <Dialog>
+              <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <Icon name="Plus" size={16} className="mr-2" />
@@ -46,11 +60,16 @@ export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }
                   <div className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="grade-subject">Предмет</Label>
-                      <Input id="grade-subject" placeholder="Математика" />
+                      <Input 
+                        id="grade-subject" 
+                        placeholder="Математика" 
+                        value={subject}
+                        onChange={(e) => setSubject(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="grade-value">Оценка</Label>
-                      <Select>
+                      <Select value={gradeValue} onValueChange={setGradeValue}>
                         <SelectTrigger id="grade-value">
                           <SelectValue placeholder="Выберите оценку" />
                         </SelectTrigger>
@@ -64,14 +83,7 @@ export const GradesTab = ({ grades, averageGrade, canManageContent, onAddGrade }
                     </div>
                     <Button 
                       className="w-full"
-                      onClick={() => {
-                        const subject = (document.getElementById('grade-subject') as HTMLInputElement)?.value;
-                        const gradeValue = (document.querySelector('[id="grade-value"]') as HTMLButtonElement)?.textContent?.charAt(0);
-                        if (subject && gradeValue) {
-                          onAddGrade(subject, parseInt(gradeValue));
-                          (document.getElementById('grade-subject') as HTMLInputElement).value = '';
-                        }
-                      }}
+                      onClick={handleAddGrade}
                     >
                       Добавить
                     </Button>
