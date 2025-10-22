@@ -38,7 +38,7 @@ interface ScheduleLesson {
 }
 
 const Index = () => {
-  const [userRole] = useState<'student' | 'teacher'>('student');
+  const [userRole, setUserRole] = useState<'student' | 'teacher' | 'principal' | 'deputy'>('student');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState(0);
 
@@ -82,8 +82,24 @@ const Index = () => {
                   </Badge>
                 )}
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+                onClick={() => {
+                  const roles: Array<'student' | 'teacher' | 'deputy' | 'principal'> = ['student', 'teacher', 'deputy', 'principal'];
+                  const currentIndex = roles.indexOf(userRole);
+                  const nextRole = roles[(currentIndex + 1) % roles.length];
+                  setUserRole(nextRole);
+                }}
+              >
+                <Icon name="User" size={16} className="mr-2" />
+                {userRole === 'student' ? 'Ученик' : userRole === 'teacher' ? 'Учитель' : userRole === 'deputy' ? 'Завуч' : 'Директор'}
+              </Button>
               <Avatar>
-                <AvatarFallback className="bg-primary-foreground text-primary">УЧ</AvatarFallback>
+                <AvatarFallback className="bg-primary-foreground text-primary">
+                  {userRole === 'student' ? 'УЧ' : userRole === 'teacher' ? 'УТ' : userRole === 'deputy' ? 'ЗВ' : 'ДР'}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -278,7 +294,7 @@ const Index = () => {
                           checked={hw.completed}
                           onCheckedChange={() => toggleHomework(hw.id)}
                           className="mt-1"
-                          disabled={userRole === 'teacher'}
+                          disabled={userRole !== 'student'}
                         />
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-4">
