@@ -14,6 +14,7 @@ export interface Homework {
 }
 
 export interface Teacher {
+  id: number;
   name: string;
   subject: string;
   email: string;
@@ -25,6 +26,14 @@ export interface ScheduleLesson {
   subject: string;
   teacher: string;
   room: string;
+}
+
+export interface Student {
+  id: number;
+  name: string;
+  class: string;
+  email: string;
+  phone: string;
 }
 
 export type UserRole = 'student' | 'teacher' | 'principal' | 'deputy';

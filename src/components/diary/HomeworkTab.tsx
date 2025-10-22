@@ -16,6 +16,7 @@ interface HomeworkTabProps {
   canManageContent: boolean;
   onToggleHomework: (id: number) => void;
   onAddHomework: (subject: string, task: string, deadline: string) => void;
+  onDeleteHomework?: (id: number) => void;
 }
 
 export const HomeworkTab = ({ 
@@ -23,7 +24,8 @@ export const HomeworkTab = ({
   userRole, 
   canManageContent, 
   onToggleHomework, 
-  onAddHomework 
+  onAddHomework,
+  onDeleteHomework
 }: HomeworkTabProps) => {
   const [open, setOpen] = useState(false);
   const [subject, setSubject] = useState('');
@@ -115,11 +117,11 @@ export const HomeworkTab = ({
             homeworks.map((hw) => (
               <div 
                 key={hw.id} 
-                className={`p-4 rounded-lg border bg-card transition-all ${
+                className={`p-4 rounded-lg border bg-card transition-all group ${
                   hw.completed ? 'opacity-60' : ''
                 }`}
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-4 relative">
                   <Checkbox 
                     checked={hw.completed}
                     onCheckedChange={() => onToggleHomework(hw.id)}
@@ -136,15 +138,25 @@ export const HomeworkTab = ({
                           {hw.task}
                         </p>
                       </div>
-                      <div className="text-right shrink-0">
-                        <Badge variant="outline" className="mb-2">
+                      <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                        <Badge variant="outline">
                           <Icon name="Calendar" size={12} className="mr-1" />
                           {hw.deadline}
                         </Badge>
                         {hw.completed && (
-                          <Badge className="bg-green-500 block">
+                          <Badge className="bg-green-500">
                             Выполнено
                           </Badge>
+                        )}
+                        {canManageContent && onDeleteHomework && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8"
+                            onClick={() => onDeleteHomework(hw.id)}
+                          >
+                            <Icon name="Trash2" size={14} className="text-destructive" />
+                          </Button>
                         )}
                       </div>
                     </div>

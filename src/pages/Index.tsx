@@ -8,16 +8,23 @@ import { GradesTab } from '@/components/diary/GradesTab';
 import { HomeworkTab } from '@/components/diary/HomeworkTab';
 import { ScheduleTab } from '@/components/diary/ScheduleTab';
 import { TeachersTab } from '@/components/diary/TeachersTab';
-import { Grade, Homework, Teacher, ScheduleLesson, UserRole } from '@/components/diary/types';
+import { StudentsTab } from '@/components/diary/StudentsTab';
+import { Grade, Homework, Teacher, Student, ScheduleLesson, UserRole } from '@/components/diary/types';
 
 const STORAGE_KEY = 'diary_data';
 
 const initialTeachers: Teacher[] = [
-  { name: 'Иванова М.А.', subject: 'Математика', email: 'ivanova@school.ru', phone: '+7 (999) 123-45-67' },
-  { name: 'Петров С.И.', subject: 'Русский язык', email: 'petrov@school.ru', phone: '+7 (999) 234-56-78' },
-  { name: 'Сидорова Е.В.', subject: 'Английский язык', email: 'sidorova@school.ru', phone: '+7 (999) 345-67-89' },
-  { name: 'Козлов А.П.', subject: 'История', email: 'kozlov@school.ru', phone: '+7 (999) 456-78-90' },
-  { name: 'Морозова Н.Д.', subject: 'Физика', email: 'morozova@school.ru', phone: '+7 (999) 567-89-01' }
+  { id: 1, name: 'Иванова М.А.', subject: 'Математика', email: 'ivanova@school.ru', phone: '+7 (999) 123-45-67' },
+  { id: 2, name: 'Петров С.И.', subject: 'Русский язык', email: 'petrov@school.ru', phone: '+7 (999) 234-56-78' },
+  { id: 3, name: 'Сидорова Е.В.', subject: 'Английский язык', email: 'sidorova@school.ru', phone: '+7 (999) 345-67-89' },
+  { id: 4, name: 'Козлов А.П.', subject: 'История', email: 'kozlov@school.ru', phone: '+7 (999) 456-78-90' },
+  { id: 5, name: 'Морозова Н.Д.', subject: 'Физика', email: 'morozova@school.ru', phone: '+7 (999) 567-89-01' }
+];
+
+const initialStudents: Student[] = [
+  { id: 1, name: 'Смирнов Алексей Иванович', class: '9А', email: 'smirnov@student.school.ru', phone: '+7 (999) 111-11-11' },
+  { id: 2, name: 'Кузнецова Мария Петровна', class: '9А', email: 'kuznetsova@student.school.ru', phone: '+7 (999) 222-22-22' },
+  { id: 3, name: 'Попов Дмитрий Сергеевич', class: '9Б', email: 'popov@student.school.ru', phone: '+7 (999) 333-33-33' }
 ];
 
 const initialSchedule: ScheduleLesson[] = [
@@ -40,7 +47,8 @@ const Index = () => {
 
   const [grades, setGrades] = useState<Grade[]>([]);
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
-  const [teachers] = useState<Teacher[]>(initialTeachers);
+  const [teachers, setTeachers] = useState<Teacher[]>(initialTeachers);
+  const [students, setStudents] = useState<Student[]>(initialStudents);
   const [schedule, setSchedule] = useState<ScheduleLesson[]>(initialSchedule);
 
   useEffect(() => {
@@ -50,6 +58,8 @@ const Index = () => {
         const data = JSON.parse(saved);
         setGrades(data.grades || []);
         setHomeworks(data.homeworks || []);
+        setTeachers(data.teachers || initialTeachers);
+        setStudents(data.students || initialStudents);
         setSchedule(data.schedule || initialSchedule);
         setNotifications(data.notifications || 0);
       } catch (e) {
@@ -62,11 +72,13 @@ const Index = () => {
     const data = {
       grades,
       homeworks,
+      teachers,
+      students,
       schedule,
       notifications
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [grades, homeworks, schedule, notifications]);
+  }, [grades, homeworks, teachers, students, schedule, notifications]);
 
   const averageGrade = grades.length > 0 ? (grades.reduce((acc, g) => acc + g.grade, 0) / grades.length).toFixed(1) : '0.0';
 
@@ -136,6 +148,42 @@ const Index = () => {
     setSchedule(schedule.filter((_, i) => i !== index));
   };
 
+  const deleteHomework = (id: number) => {
+    setHomeworks(homeworks.filter(hw => hw.id !== id));
+  };
+
+  const addTeacher = (name: string, subject: string, email: string, phone: string) => {
+    const newId = teachers.length > 0 ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
+    const newTeacher: Teacher = {
+      id: newId,
+      name,
+      subject,
+      email,
+      phone
+    };
+    setTeachers([...teachers, newTeacher]);
+  };
+
+  const deleteTeacher = (id: number) => {
+    setTeachers(teachers.filter(t => t.id !== id));
+  };
+
+  const addStudent = (name: string, classNum: string, email: string, phone: string) => {
+    const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+    const newStudent: Student = {
+      id: newId,
+      name,
+      class: classNum,
+      email,
+      phone
+    };
+    setStudents([...students, newStudent]);
+  };
+
+  const deleteStudent = (id: number) => {
+    setStudents(students.filter(s => s.id !== id));
+  };
+
   const canManageContent = userRole === 'teacher' || userRole === 'deputy' || userRole === 'principal';
 
   if (!isLoggedIn) {
@@ -165,7 +213,7 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid bg-card">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid bg-card">
             <TabsTrigger value="dashboard" className="gap-2">
               <Icon name="Home" size={16} />
               <span className="hidden sm:inline">Главная</span>
@@ -185,6 +233,10 @@ const Index = () => {
             <TabsTrigger value="teachers" className="gap-2">
               <Icon name="Users" size={16} />
               <span className="hidden sm:inline">Учителя</span>
+            </TabsTrigger>
+            <TabsTrigger value="students" className="gap-2">
+              <Icon name="GraduationCap" size={16} />
+              <span className="hidden sm:inline">Ученики</span>
             </TabsTrigger>
           </TabsList>
 
@@ -213,6 +265,7 @@ const Index = () => {
               canManageContent={canManageContent}
               onToggleHomework={toggleHomework}
               onAddHomework={addHomework}
+              onDeleteHomework={deleteHomework}
             />
           </TabsContent>
 
@@ -226,7 +279,21 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="teachers">
-            <TeachersTab teachers={teachers} />
+            <TeachersTab 
+              teachers={teachers}
+              canManageContent={userRole === 'principal'}
+              onAddTeacher={addTeacher}
+              onDeleteTeacher={deleteTeacher}
+            />
+          </TabsContent>
+
+          <TabsContent value="students">
+            <StudentsTab 
+              students={students}
+              canManageContent={userRole === 'principal'}
+              onAddStudent={addStudent}
+              onDeleteStudent={deleteStudent}
+            />
           </TabsContent>
         </Tabs>
       </main>

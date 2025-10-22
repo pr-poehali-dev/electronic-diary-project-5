@@ -7,27 +7,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import { Teacher } from './types';
+import { Student } from './types';
 
-interface TeachersTabProps {
-  teachers: Teacher[];
+interface StudentsTabProps {
+  students: Student[];
   canManageContent: boolean;
-  onAddTeacher: (name: string, subject: string, email: string, phone: string) => void;
-  onDeleteTeacher: (id: number) => void;
+  onAddStudent: (name: string, classNum: string, email: string, phone: string) => void;
+  onDeleteStudent: (id: number) => void;
 }
 
-export const TeachersTab = ({ teachers, canManageContent, onAddTeacher, onDeleteTeacher }: TeachersTabProps) => {
+export const StudentsTab = ({ students, canManageContent, onAddStudent, onDeleteStudent }: StudentsTabProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [subject, setSubject] = useState('');
+  const [classNum, setClassNum] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
 
-  const handleAddTeacher = () => {
-    if (name && subject && email && phone) {
-      onAddTeacher(name, subject, email, phone);
+  const handleAddStudent = () => {
+    if (name && classNum && email && phone) {
+      onAddStudent(name, classNum, email, phone);
       setName('');
-      setSubject('');
+      setClassNum('');
       setEmail('');
       setPhone('');
       setOpen(false);
@@ -42,46 +42,46 @@ export const TeachersTab = ({ teachers, canManageContent, onAddTeacher, onDelete
             <DialogTrigger asChild>
               <Button>
                 <Icon name="Plus" size={16} className="mr-2" />
-                Добавить учителя
+                Добавить ученика
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Добавить учителя</DialogTitle>
+                <DialogTitle>Добавить ученика</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="teacher-name">ФИО</Label>
+                  <Label htmlFor="student-name">ФИО</Label>
                   <Input 
-                    id="teacher-name" 
-                    placeholder="Иванова М.А."
+                    id="student-name" 
+                    placeholder="Петров Иван Сергеевич"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="teacher-subject">Предмет</Label>
+                  <Label htmlFor="student-class">Класс</Label>
                   <Input 
-                    id="teacher-subject" 
-                    placeholder="Математика"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
+                    id="student-class" 
+                    placeholder="9А"
+                    value={classNum}
+                    onChange={(e) => setClassNum(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="teacher-email">Email</Label>
+                  <Label htmlFor="student-email">Email</Label>
                   <Input 
-                    id="teacher-email" 
+                    id="student-email" 
                     type="email"
-                    placeholder="ivanova@school.ru"
+                    placeholder="petrov@student.school.ru"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="teacher-phone">Телефон</Label>
+                  <Label htmlFor="student-phone">Телефон</Label>
                   <Input 
-                    id="teacher-phone" 
+                    id="student-phone" 
                     placeholder="+7 (999) 123-45-67"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -89,7 +89,7 @@ export const TeachersTab = ({ teachers, canManageContent, onAddTeacher, onDelete
                 </div>
                 <Button 
                   className="w-full"
-                  onClick={handleAddTeacher}
+                  onClick={handleAddStudent}
                 >
                   Добавить
                 </Button>
@@ -100,31 +100,31 @@ export const TeachersTab = ({ teachers, canManageContent, onAddTeacher, onDelete
       )}
       
       <div className="grid gap-6 md:grid-cols-2">
-        {teachers.length === 0 ? (
+        {students.length === 0 ? (
           <div className="col-span-2 text-center py-12 text-muted-foreground">
-            <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
-            <p>Пока нет учителей</p>
+            <Icon name="GraduationCap" size={48} className="mx-auto mb-4 opacity-50" />
+            <p>Пока нет учеников</p>
           </div>
         ) : (
-          teachers.map((teacher) => (
-            <Card key={teacher.id} className="hover:shadow-lg transition-shadow group relative">
+          students.map((student) => (
+            <Card key={student.id} className="hover:shadow-lg transition-shadow group relative">
               <CardHeader>
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarFallback className="text-lg bg-primary text-primary-foreground">
-                      {teacher.name.split(' ').map(n => n[0]).join('')}
+                    <AvatarFallback className="text-lg bg-secondary text-secondary-foreground">
+                      {student.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{teacher.name}</CardTitle>
-                    <Badge variant="secondary" className="mt-2">{teacher.subject}</Badge>
+                    <CardTitle className="text-lg">{student.name}</CardTitle>
+                    <Badge variant="secondary" className="mt-2">Класс {student.class}</Badge>
                   </div>
                   {canManageContent && (
                     <Button
                       variant="ghost"
                       size="sm"
                       className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => onDeleteTeacher(teacher.id)}
+                      onClick={() => onDeleteStudent(student.id)}
                     >
                       <Icon name="Trash2" size={16} className="text-destructive" />
                     </Button>
@@ -134,20 +134,16 @@ export const TeachersTab = ({ teachers, canManageContent, onAddTeacher, onDelete
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3 text-sm">
                   <Icon name="Mail" size={16} className="text-muted-foreground" />
-                  <a href={`mailto:${teacher.email}`} className="text-primary hover:underline">
-                    {teacher.email}
+                  <a href={`mailto:${student.email}`} className="text-primary hover:underline">
+                    {student.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <Icon name="Phone" size={16} className="text-muted-foreground" />
-                  <a href={`tel:${teacher.phone}`} className="hover:text-primary">
-                    {teacher.phone}
+                  <a href={`tel:${student.phone}`} className="hover:text-primary">
+                    {student.phone}
                   </a>
                 </div>
-                <Button className="w-full mt-4" variant="outline">
-                  <Icon name="MessageSquare" size={16} className="mr-2" />
-                  Написать сообщение
-                </Button>
               </CardContent>
             </Card>
           ))
