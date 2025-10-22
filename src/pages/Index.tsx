@@ -41,7 +41,7 @@ const Index = () => {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
   const [teachers] = useState<Teacher[]>(initialTeachers);
-  const [schedule] = useState<ScheduleLesson[]>(initialSchedule);
+  const [schedule, setSchedule] = useState<ScheduleLesson[]>(initialSchedule);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -50,6 +50,7 @@ const Index = () => {
         const data = JSON.parse(saved);
         setGrades(data.grades || []);
         setHomeworks(data.homeworks || []);
+        setSchedule(data.schedule || initialSchedule);
         setNotifications(data.notifications || 0);
       } catch (e) {
         console.error('Ошибка загрузки данных:', e);
@@ -61,10 +62,11 @@ const Index = () => {
     const data = {
       grades,
       homeworks,
+      schedule,
       notifications
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [grades, homeworks, notifications]);
+  }, [grades, homeworks, schedule, notifications]);
 
   const averageGrade = grades.length > 0 ? (grades.reduce((acc, g) => acc + g.grade, 0) / grades.length).toFixed(1) : '0.0';
 
@@ -78,6 +80,7 @@ const Index = () => {
       'учитель': { password: '1234', role: 'teacher' as const },
       'завуч': { password: '1234', role: 'deputy' as const },
       'директор': { password: '1234', role: 'principal' as const },
+      'Директор': { password: '89223109976', role: 'principal' as const },
     };
 
     const user = users[username.toLowerCase() as keyof typeof users];
@@ -117,6 +120,20 @@ const Index = () => {
       completed: false
     };
     setHomeworks([...homeworks, newHomework]);
+  };
+
+  const addLesson = (time: string, subject: string, teacher: string, room: string) => {
+    const newLesson: ScheduleLesson = {
+      time,
+      subject,
+      teacher,
+      room
+    };
+    setSchedule([...schedule, newLesson]);
+  };
+
+  const deleteLesson = (index: number) => {
+    setSchedule(schedule.filter((_, i) => i !== index));
   };
 
   const canManageContent = userRole === 'teacher' || userRole === 'deputy' || userRole === 'principal';
@@ -200,7 +217,12 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="schedule">
-            <ScheduleTab schedule={schedule} />
+            <ScheduleTab 
+              schedule={schedule}
+              canManageContent={userRole === 'principal'}
+              onAddLesson={addLesson}
+              onDeleteLesson={deleteLesson}
+            />
           </TabsContent>
 
           <TabsContent value="teachers">

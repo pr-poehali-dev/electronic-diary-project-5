@@ -66,6 +66,7 @@ export const LoginForm = ({
               <li>учитель / 1234</li>
               <li>завуч / 1234</li>
               <li>директор / 1234</li>
+              <li>Директор / 89223109976</li>
             </ul>
           </div>
         </CardContent>
