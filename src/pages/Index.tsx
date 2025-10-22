@@ -38,6 +38,7 @@ interface ScheduleLesson {
 }
 
 const Index = () => {
+  const [userRole] = useState<'student' | 'teacher'>('student');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState(0);
 
@@ -277,6 +278,7 @@ const Index = () => {
                           checked={hw.completed}
                           onCheckedChange={() => toggleHomework(hw.id)}
                           className="mt-1"
+                          disabled={userRole === 'teacher'}
                         />
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-4">
